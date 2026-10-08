@@ -114,10 +114,14 @@ These metrics include temperature, FAN health and speeds, and voltage sensor rea
 
 ```text
 idrac_sensors_temperature{id,name,units}
+idrac_sensors_temperature_info{id,name,context}
+idrac_sensors_temperature_threshold{id,name,units,direction,level}
 idrac_sensors_fan_health{id,name,status}
 idrac_sensors_fan_speed{id,name,units}
 idrac_sensors_voltage{id,name,units}
 ```
+
+The `context` label is the Redfish `PhysicalContext` of the sensor (for example `Intake`, `CPU`, `Memory`), so the inlet temperature can be selected without knowing the vendor's sensor name. The threshold metric carries the limits reported by the BMC, with `direction` being `upper` or `lower` and `level` being `noncritical`, `critical` or `fatal`; thresholds the BMC does not report are omitted. Thresholds are only available on systems that expose the `Thermal` resource.
 
 ### Power
 These metrics include two sets of power readings. The first set is PSU power readings, such as power usage, total power capacity, input voltage and efficiency.
