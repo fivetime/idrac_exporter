@@ -146,6 +146,30 @@ func (mc *Collector) NewSensorsTemperature(ch chan<- prometheus.Metric, temperat
 	)
 }
 
+func (mc *Collector) NewSensorsTemperatureInfo(ch chan<- prometheus.Metric, id, name, context string) {
+	ch <- prometheus.MustNewConstMetric(
+		mc.SensorsTemperatureInfo,
+		prometheus.GaugeValue,
+		1.0,
+		id,
+		name,
+		context,
+	)
+}
+
+func (mc *Collector) NewSensorsTemperatureThreshold(ch chan<- prometheus.Metric, value float64, id, name, units, direction, level string) {
+	ch <- prometheus.MustNewConstMetric(
+		mc.SensorsTemperatureThreshold,
+		prometheus.GaugeValue,
+		value,
+		id,
+		name,
+		units,
+		direction,
+		level,
+	)
+}
+
 func (mc *Collector) NewSensorsFanHealth(ch chan<- prometheus.Metric, id, name, health string) {
 	value := health2value(health)
 	if value < 0 {

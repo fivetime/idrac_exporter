@@ -40,10 +40,12 @@ type Collector struct {
 	SystemMachineInfo     *prometheus.Desc
 
 	// Sensors
-	SensorsTemperature *prometheus.Desc
-	SensorsFanHealth   *prometheus.Desc
-	SensorsFanSpeed    *prometheus.Desc
-	SensorsVoltage     *prometheus.Desc
+	SensorsTemperature          *prometheus.Desc
+	SensorsTemperatureInfo      *prometheus.Desc
+	SensorsTemperatureThreshold *prometheus.Desc
+	SensorsFanHealth            *prometheus.Desc
+	SensorsFanSpeed             *prometheus.Desc
+	SensorsVoltage              *prometheus.Desc
 
 	// Power supply
 	PowerSupplyHealth            *prometheus.Desc
@@ -185,6 +187,16 @@ func NewCollector() *Collector {
 			prometheus.BuildFQName(prefix, "sensors", "temperature"),
 			"Sensors reporting temperature measurements",
 			[]string{"id", "name", "units"}, nil,
+		),
+		SensorsTemperatureInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(prefix, "sensors", "temperature_info"),
+			"Information about temperature sensors, such as the Redfish PhysicalContext (Intake, CPU, ...)",
+			[]string{"id", "name", "context"}, nil,
+		),
+		SensorsTemperatureThreshold: prometheus.NewDesc(
+			prometheus.BuildFQName(prefix, "sensors", "temperature_threshold"),
+			"Thresholds reported by the BMC for temperature sensors",
+			[]string{"id", "name", "units", "direction", "level"}, nil,
 		),
 		SensorsFanHealth: prometheus.NewDesc(
 			prometheus.BuildFQName(prefix, "sensors", "fan_health"),
@@ -508,6 +520,8 @@ func (collector *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.SystemBiosInfo
 	ch <- collector.SystemMachineInfo
 	ch <- collector.SensorsTemperature
+	ch <- collector.SensorsTemperatureInfo
+	ch <- collector.SensorsTemperatureThreshold
 	ch <- collector.SensorsFanHealth
 	ch <- collector.SensorsFanSpeed
 	ch <- collector.SensorsVoltage

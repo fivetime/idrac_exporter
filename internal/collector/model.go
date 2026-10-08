@@ -278,6 +278,37 @@ type Temperature struct {
 	Threshold
 }
 
+// ThresholdLevel is one threshold of a sensor, as exported by the
+// temperature_threshold metric.
+type ThresholdLevel struct {
+	Direction string // "upper" or "lower"
+	Level     string // "noncritical", "critical" or "fatal"
+	Value     float64
+}
+
+// Levels returns the thresholds that carry a number. Thresholds the BMC does
+// not have are null (iLO 5) or "N/A" and are skipped.
+func (t *Threshold) Levels() []ThresholdLevel {
+	all := []struct {
+		direction, level string
+		v                any
+	}{
+		{"upper", "noncritical", t.UpperThresholdNonCritical},
+		{"upper", "critical", t.UpperThresholdCritical},
+		{"upper", "fatal", t.UpperThresholdFatal},
+		{"lower", "noncritical", t.LowerThresholdNonCritical},
+		{"lower", "critical", t.LowerThresholdCritical},
+		{"lower", "fatal", t.LowerThresholdFatal},
+	}
+	out := []ThresholdLevel{}
+	for _, x := range all {
+		if f, ok := asFloat64(x.v); ok {
+			out = append(out, ThresholdLevel{x.direction, x.level, f})
+		}
+	}
+	return out
+}
+
 func (t *Temperature) GetId(fallback int) string {
 	if len(t.MemberId) > 0 {
 		return t.MemberId

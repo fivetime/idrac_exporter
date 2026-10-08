@@ -325,6 +325,9 @@ func (client *Client) RefreshSensorsNew(mc *Collector, ch chan<- prometheus.Metr
 				}
 
 				mc.NewSensorsTemperature(ch, *c.Reading, strconv.Itoa(n), name, "celsius")
+				// ThermalMetrics carries no thresholds; they live on the
+				// Sensor resource behind DataSourceUri and are not fetched here.
+				mc.NewSensorsTemperatureInfo(ch, strconv.Itoa(n), name, c.PhysicalContext)
 			}
 		}
 	}
@@ -350,6 +353,10 @@ func (client *Client) RefreshSensorsOld(mc *Collector, ch chan<- prometheus.Metr
 
 		id := t.GetId(n)
 		mc.NewSensorsTemperature(ch, t.ReadingCelsius, id, t.Name, "celsius")
+		mc.NewSensorsTemperatureInfo(ch, id, t.Name, t.PhysicalContext)
+		for _, l := range t.Levels() {
+			mc.NewSensorsTemperatureThreshold(ch, l.Value, id, t.Name, "celsius", l.Direction, l.Level)
+		}
 	}
 
 	for n, f := range resp.Fans {
